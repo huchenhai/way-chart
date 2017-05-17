@@ -10,27 +10,28 @@
 </head>
 <body ng-app="MyApp" style="padding:50px 0 0 250px;">
   <div class="w3-col m8  w3-card"  ng-controller="myController">
-    <div class="w3-container w3-blue">
+    <div class="w3-container w3-blue w3-padding-16">
   <h2>Equit Split</h2>
 </div>
-   <form class="w3-container">
+   <div class="w3-container">
     <js-xls onread="read" onerror="error"></js-xls>
   <p>
   <label>Name</label>
   <input class="w3-input" type="text" ng-model="name"></p>
   <p>
-  <label>Share</label>
+  <label>Value Share</label>
   <input class="w3-input" type="number" ng-model="share"></p>
-
-
-</form>
-      <button ng-click="addMember()" class="w3-button w3-block w3-green">Add Member</button>
-      <p>Total: <span class="w3-blue">{{total}}</span></p>
+  <button ng-click="addMember()" class="w3-button w3-block w3-green">Add</button>
+<p>Total: <span class="w3-blue">{{total}}</span></p>
       <p>Share: <span class="w3-teal">{{share}}</span></p>
       <ul>
           <li ng-repeat="person in data">{{person.name}}: {{person.y}}</li>
       </ul>
       <pie-chart data="data">Placeholder for generic chart</pie-chart>
+
+</div>
+      
+      
 
 </div>
    
