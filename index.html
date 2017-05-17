@@ -8,107 +8,103 @@
 
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
-<body ng-app="MyApp" style="padding:50px 0 0 250px; overflow:auto;">
+<body ng-app="MyApp" style="padding:50px 0 0 250px;">
   <div class="w3-col m8  w3-card"  ng-controller="myController">
     <div class="w3-container w3-blue">
-  <h2>Input Form</h2>
+  <h2>Equit Split</h2>
 </div>
    <form class="w3-container">
     <js-xls onread="read" onerror="error"></js-xls>
   <p>
   <label>Name</label>
-  <input class="w3-input" type="text" ng-bind="name"></p>
+  <input class="w3-input" type="text" ng-model="name"></p>
   <p>
-  <label>Last Name</label>
-  <input class="w3-input" type="text"></p>
-  <p>
-  <label>Email</label>
-  <input class="w3-input" type="text"></p>
+  <label>Share</label>
+  <input class="w3-input" type="number" ng-model="share"></p>
+
+
 </form>
-     <div class="hc-pie" items="items"></div>
+      <button ng-click="addMember()" class="w3-button w3-block w3-green">Add Member</button>
+      <p>Total: <span class="w3-blue">{{total}}</span></p>
+      <p>Share: <span class="w3-teal">{{share}}</span></p>
+      <ul>
+          <li ng-repeat="person in data">{{person.name}}: {{person.y}}</li>
+      </ul>
+      <pie-chart data="data">Placeholder for generic chart</pie-chart>
 
 </div>
    
  <script type="text/javascript">
 
 
-   var myapp= angular.module('MyApp', ['angular-js-xlsx']).directive('hcPie', function () {
-    return {
-        restrict: 'C',
-        replace: true,
-        scope: {
-            items: '='
-        },
-        controller: function ($scope, $element, $attrs) {
-            console.log(2);
-
-        },
-        template: '<div id="container" style="margin: 0 auto">not working</div>',
-        link: function (scope, element, attrs) {
-            console.log(3);
-            var chart = new Highcharts.Chart({
-                chart: {
-                    renderTo: 'container',
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false
-                },
-                title: {
-                    text: 'test'
-                },
-                tooltip: {
-                    pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-                    percentageDecimals: 1
-                },
-                plotOptions: {
-                    pie: {
-                        animation:true,
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            color: '#000000',
-                            connectorColor: '#000000',
-                            formatter: function () {
-                                return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Browser share',
-                    data: scope.items
-                }]
-            },function(chart){
-                // $('#addPoint').click(function(){
-                //     chart.series[0].addPoint(1);
-                // });
-            });
-            
-            scope.$watch("items", function (newValue) {
-                chart.series[0].setData(newValue, true);
-            }, true);
-
-        }
-    }
-});
-    myapp.controller('myController', function($scope) {
-    
-      $scope.read = function (workbook) {
-    
-        console.log(workbook);
-        var first_sheet_name = workbook.SheetNames[0];
-        var worksheet = workbook.Sheets[first_sheet_name];
-        console.log(worksheet);
-        $scope.data=[{name:worksheet['B2'].v,y:worksheet['B6'].v*100},{name:worksheet['C2'].v,y:worksheet['C6'].v*100}];
-        $scope.items=$scope.data;
-      }
+   var myapp= angular.module('MyApp', ['angular-js-xlsx']).directive('pieChart', function () {
+       return {
+           restrict: 'E',
+           template: '<div></div>',
+           scope: {
+               data: '='
+           },
+           link: function (scope, element) {
+              var chart = Highcharts.chart(element[0], {
+                   chart: {
+                       type: 'pie'
+                   },
+                   title: {
+                       text: 'Equit Split'
+                   },
+                   tooltip: {
+                       pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                   },
+                   plotOptions: {
+                       pie: {
+                           allowPointSelect: true,
+                           cursor: 'pointer',
+                           dataLabels: {
+                               enabled: true,
+                               format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                               style: {
+                                   color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                               }
+                           }
+                       }
+                   },
+                   series: [{
+                       colorByPoint: true,
+                       data: scope.data
+                   }]
+               });
+               scope.$watch("data", function (newValue) {
+                   chart.series[0].setData(newValue, true);
+               }, true);
+           }
+       };
+   }).controller('myController', function($scope) {
+       $scope.data = [];
+       $scope.total=0;
+       $scope.share=0;
+       console.log($scope.data);
+       $scope.read = function (workbook) {
+           $scope.$apply(function(){
+               var first_sheet_name = workbook.SheetNames[0];
+               var worksheet = workbook.Sheets[first_sheet_name];
+               $scope.data.push({name:worksheet['B2'].v,y:worksheet['B5'].v},
+                   {name:worksheet['C2'].v,y:worksheet['C5'].v},
+                   {name:worksheet['D2'].v,y:worksheet['D5'].v},
+                   {name:worksheet['E2'].v,y:worksheet['E5'].v},
+               );
+               $scope.total += worksheet['F5'].v;
+           });
+       }
+       $scope.addMember= function(){
+                $scope.total+=$scope.share;
+               $scope.data.push({name: $scope.name, y:$scope.share });
+               $scope.name='';
+               $scope.share=0;
+       }
       $scope.error = function (e) {
         /* DO SOMETHING WHEN ERROR IS THROWN */
         console.log(e);
       }
     });
-    
   </script>
 </html>
