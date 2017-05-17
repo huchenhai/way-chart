@@ -1,0 +1,27 @@
+<html>
+<head>
+	  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+		 <script type="text/javascript" src="//unpkg.com/angular-js-xlsx/angular-js-xlsx.js"></script>
+	<script lang="javascript" src="node_modules/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body ng-app="MyApp">
+  <div ng-controller="myController">
+    <js-xls onread="read" onerror="error"></js-xls>
+  </div>
+ <script type="text/javascript">
+    angular.module('MyApp', ['angular-js-xlsx'])
+    .controller('myController', function($scope) {
+      $scope.read = function (workbook) {
+        /* DO SOMETHING WITH workbook HERE */
+        console.log(workbook);
+        var first_sheet_name = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[first_sheet_name];
+        console.log(worksheet);
+      }
+      $scope.error = function (e) {
+        /* DO SOMETHING WHEN ERROR IS THROWN */
+        console.log(e);
+      }
+    });
+  </script>
+</html>
